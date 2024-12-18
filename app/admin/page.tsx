@@ -4,11 +4,18 @@ import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 
+interface User {
+  id: string
+  username: string
+  email: string
+  role: string
+}
+
 export default function AdminDashboard() {
   const { data: session, status } = useSession()
   const router = useRouter()
-  const [users, setUsers] = useState([])
-  const [streamers, setStreamers] = useState([])
+  const [users, setUsers] = useState<User[]>([])
+  const [streamers, setStreamers] = useState<User[]>([])
 
   useEffect(() => {
     if (status === 'unauthenticated' || (session?.user?.role !== 'admin')) {
