@@ -1,3 +1,6 @@
 {
-    "windsurf.enableModelBasedAutoExecution": true
+    "windsurf.enableModelBasedAutoExecution": true,
+    "windsurf.cascadeCommandsAllowList": [
+        "git"
+    ]
 }
