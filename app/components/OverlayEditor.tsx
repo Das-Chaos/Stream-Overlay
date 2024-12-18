@@ -26,8 +26,8 @@ export default function OverlayEditor() {
   const { data: session } = useSession()
 
   useEffect(() => {
-    if (session?.user?.name) {
-      socket.emit('joinOverlay', session.user.name)
+    if (session?.user?.username) {
+      socket.emit('joinOverlay', session.user.username)
     }
 
     fetchItems()
@@ -65,7 +65,7 @@ export default function OverlayEditor() {
       if (response.ok) {
         const { items } = await response.json()
         setItems(items)
-        socket.emit('updateOverlay', { username: session?.user?.name, items })
+        socket.emit('updateOverlay', { username: session?.user?.username, items })
       } else {
         throw new Error('Failed to add overlay item')
       }
@@ -84,7 +84,7 @@ export default function OverlayEditor() {
       if (response.ok) {
         const { items } = await response.json()
         setItems(items)
-        socket.emit('updateOverlay', { username: session?.user?.name, items })
+        socket.emit('updateOverlay', { username: session?.user?.username, items })
       } else {
         throw new Error('Failed to update overlay item')
       }
@@ -102,7 +102,7 @@ export default function OverlayEditor() {
         const { items } = await response.json()
         setItems(items)
         setSelectedItem(null)
-        socket.emit('updateOverlay', { username: session?.user?.name, items })
+        socket.emit('updateOverlay', { username: session?.user?.username, items })
       } else {
         throw new Error('Failed to remove overlay item')
       }
