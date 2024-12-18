@@ -32,17 +32,17 @@ interface OverlayItem {
   style?: {
     fontSize?: number
     color?: string
+    size?: number
   }
 }
 
-type OverlayItemType = 'text' | 'image' | 'gif' | 'sound'
+type OverlayItemType = 'text' | 'image' | 'widget'
 
 const socket = io()
 
 export default function OverlayEditor() {
   const [items, setItems] = useState<OverlayItem[]>([])
   const [selectedItem, setSelectedItem] = useState<OverlayItem | null>(null)
-  const [isPreviewMode, setIsPreviewMode] = useState(false)
   const { data: session } = useSession()
 
   useEffect(() => {
@@ -52,12 +52,12 @@ export default function OverlayEditor() {
 
     fetchItems()
 
-    socket.on('overlayUpdate', (updatedItems) => {
+    socket.on('overlayUpdated', ({ items: updatedItems }) => {
       setItems(updatedItems)
     })
 
     return () => {
-      socket.off('overlayUpdate')
+      socket.off('overlayUpdated')
     }
   }, [session])
 
@@ -65,13 +65,14 @@ export default function OverlayEditor() {
     try {
       const response = await fetch('/api/overlay-items')
       if (response.ok) {
-        const data = await response.json()
-        setItems(data.items)
+        const { items } = await response.json()
+        setItems(items)
       } else {
         throw new Error('Failed to fetch overlay items')
       }
     } catch (error) {
-      console.error('Error fetching overlay items:', error)
+      console.error('Error fetching items:', error)
+      toast.error('Failed to fetch overlay items')
     }
   }
 
@@ -79,9 +80,20 @@ export default function OverlayEditor() {
     try {
       const response = await fetch('/api/overlay-items', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type, content: type === 'text' ? 'New Text' : '', position: { x: 0, y: 0 } }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type,
+          position: { x: 0, y: 0 },
+          style: {
+            fontSize: 16,
+            color: '#000000',
+            size: 100
+          }
+        }),
       })
+
       if (response.ok) {
         const { items } = await response.json()
         setItems(items)
@@ -90,17 +102,21 @@ export default function OverlayEditor() {
         throw new Error('Failed to add overlay item')
       }
     } catch (error) {
-      console.error('Error adding overlay item:', error)
+      console.error('Error adding item:', error)
+      toast.error('Failed to add overlay item')
     }
   }
 
-  const updateItem = async (id: string, newProps: Partial<OverlayItem>) => {
+  const updateItem = async (id: string, updates: Partial<OverlayItem>) => {
     try {
       const response = await fetch(`/api/overlay-items/${id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newProps),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updates),
       })
+
       if (response.ok) {
         const { items } = await response.json()
         setItems(items)
@@ -109,7 +125,8 @@ export default function OverlayEditor() {
         throw new Error('Failed to update overlay item')
       }
     } catch (error) {
-      console.error('Error updating overlay item:', error)
+      console.error('Error updating item:', error)
+      toast.error('Failed to update overlay item')
     }
   }
 
@@ -118,6 +135,7 @@ export default function OverlayEditor() {
       const response = await fetch(`/api/overlay-items/${id}`, {
         method: 'DELETE',
       })
+
       if (response.ok) {
         const { items } = await response.json()
         setItems(items)
@@ -127,7 +145,8 @@ export default function OverlayEditor() {
         throw new Error('Failed to remove overlay item')
       }
     } catch (error) {
-      console.error('Error removing overlay item:', error)
+      console.error('Error removing item:', error)
+      toast.error('Failed to remove overlay item')
     }
   }
 
@@ -179,8 +198,7 @@ export default function OverlayEditor() {
                 <div className="mb-4 flex flex-wrap gap-2">
                   <Button onClick={() => addItem('text')}><Plus className="mr-2 h-4 w-4" /> Add Text</Button>
                   <Button onClick={() => addItem('image')}><Plus className="mr-2 h-4 w-4" /> Add Image</Button>
-                  <Button onClick={() => addItem('gif')}><Plus className="mr-2 h-4 w-4" /> Add GIF</Button>
-                  <Button onClick={() => addItem('sound')}><Plus className="mr-2 h-4 w-4" /> Add Sound</Button>
+                  <Button onClick={() => addItem('widget')}><Plus className="mr-2 h-4 w-4" /> Add Widget</Button>
                 </div>
               )}
               {isPreviewMode ? (
@@ -260,7 +278,7 @@ export default function OverlayEditor() {
                             onChange={(e) => updateItem(selectedItem.id, { style: { ...selectedItem.style, color: e.target.value } })}
                           />
                         </div>
-                        {(selectedItem.type === 'image' || selectedItem.type === 'gif') && (
+                        {(selectedItem.type === 'image' || selectedItem.type === 'widget') && (
                           <div>
                             <Label htmlFor="size">Size</Label>
                             <Input
