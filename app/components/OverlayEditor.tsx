@@ -17,11 +17,31 @@ import { io } from 'socket.io-client'
 import { useSession } from 'next-auth/react'
 import toast from 'react-hot-toast'
 
+interface OverlayItem {
+  id: string
+  type: OverlayItemType
+  position: {
+    x: number
+    y: number
+  }
+  content?: string
+  size?: {
+    width: number
+    height: number
+  }
+  style?: {
+    fontSize?: number
+    color?: string
+  }
+}
+
+type OverlayItemType = 'text' | 'image' | 'gif' | 'sound'
+
 const socket = io()
 
 export default function OverlayEditor() {
-  const [items, setItems] = useState([])
-  const [selectedItem, setSelectedItem] = useState(null)
+  const [items, setItems] = useState<OverlayItem[]>([])
+  const [selectedItem, setSelectedItem] = useState<OverlayItem | null>(null)
   const [isPreviewMode, setIsPreviewMode] = useState(false)
   const { data: session } = useSession()
 
@@ -55,7 +75,7 @@ export default function OverlayEditor() {
     }
   }
 
-  const addItem = async (type) => {
+  const addItem = async (type: OverlayItemType) => {
     try {
       const response = await fetch('/api/overlay-items', {
         method: 'POST',
@@ -74,7 +94,7 @@ export default function OverlayEditor() {
     }
   }
 
-  const updateItem = async (id, newProps) => {
+  const updateItem = async (id: string, newProps: Partial<OverlayItem>) => {
     try {
       const response = await fetch(`/api/overlay-items/${id}`, {
         method: 'PUT',
@@ -93,7 +113,7 @@ export default function OverlayEditor() {
     }
   }
 
-  const removeItem = async (id) => {
+  const removeItem = async (id: string) => {
     try {
       const response = await fetch(`/api/overlay-items/${id}`, {
         method: 'DELETE',
@@ -196,7 +216,7 @@ export default function OverlayEditor() {
                           <Label htmlFor="content">Content</Label>
                           <Input
                             id="content"
-                            value={selectedItem.content}
+                            value={selectedItem.content || ''}
                             onChange={(e) => updateItem(selectedItem.id, { content: e.target.value })}
                           />
                         </div>
