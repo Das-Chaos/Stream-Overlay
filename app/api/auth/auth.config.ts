@@ -7,7 +7,7 @@ import { AuthOptions } from 'next-auth'
 
 interface CustomUser {
   id: string
-  email: string
+  email: string | null
   username: string
   role: string
 }
@@ -55,10 +55,11 @@ export const authOptions: AuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id
-        token.email = user.email
-        token.username = (user as CustomUser).username
-        token.role = (user as CustomUser).role
+        const customUser = user as CustomUser;
+        token.id = customUser.id
+        token.email = customUser.email
+        token.username = customUser.username
+        token.role = customUser.role
       }
       return token
     },
