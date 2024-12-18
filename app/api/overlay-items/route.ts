@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
 import { getServerSession } from "next-auth/next"
-import { authOptions } from "../auth/[...nextauth]/route"
+import { authOptions } from "../auth/auth.config"
 import { z } from 'zod'
 import rateLimitMiddleware from '../../../middleware/rateLimit'
 
@@ -73,4 +73,3 @@ export async function POST(req: Request) {
     return NextResponse.json({ message: 'An error occurred while creating the overlay item' }, { status: 500 })
   }
 }
-

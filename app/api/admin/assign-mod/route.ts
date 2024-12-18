@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getServerSession } from "next-auth/next"
-import { authOptions } from "../../auth/[...nextauth]/route"
+import { authOptions } from "../../auth/auth.config"
 
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions)
@@ -38,4 +38,3 @@ export async function POST(req: Request) {
     return NextResponse.json({ message: 'An error occurred while assigning mod role' }, { status: 500 })
   }
 }
-
