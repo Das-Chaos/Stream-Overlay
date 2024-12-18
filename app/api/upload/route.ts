@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getServerSession } from "next-auth/next"
-import { authOptions } from "../auth/[...nextauth]/route"
+import { authOptions } from "../auth/auth.config"
 import { writeFile } from 'fs/promises'
 import path from 'path'
 
@@ -32,4 +32,3 @@ export async function POST(req: Request) {
     return NextResponse.json({ message: 'Error saving file' }, { status: 500 })
   }
 }
-
