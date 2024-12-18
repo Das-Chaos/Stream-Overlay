@@ -1,6 +1,15 @@
 import CredentialsProvider from 'next-auth/providers/credentials'
 import { PrismaClient } from '@prisma/client'
 import bcrypt from 'bcryptjs'
+import { JWT } from 'next-auth/jwt'
+import { Session } from 'next-auth'
+
+interface User {
+  id: string
+  email: string
+  username: string
+  role: string
+}
 
 const prisma = new PrismaClient()
 
@@ -43,7 +52,7 @@ export const authOptions = {
     })
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user }: { token: JWT; user?: User }) {
       if (user) {
         return {
           ...token,
@@ -55,7 +64,7 @@ export const authOptions = {
       }
       return token
     },
-    async session({ session, token }) {
+    async session({ session, token }: { session: Session; token: JWT }) {
       if (token) {
         session.user.id = token.id as string
         session.user.email = token.email
