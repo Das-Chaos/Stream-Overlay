@@ -22,7 +22,9 @@ const itemSchema = z.object({
 })
 
 export async function GET(req: Request) {
-  await rateLimitMiddleware(req, NextResponse, () => {})
+  const rateLimitResult = await rateLimitMiddleware(req)
+  if (rateLimitResult) return rateLimitResult
+  
   const session = await getServerSession(authOptions)
 
   if (!session || (session.user.role !== 'streamer' && session.user.role !== 'mod')) {
@@ -42,7 +44,9 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  await rateLimitMiddleware(req, NextResponse, () => {})
+  const rateLimitResult = await rateLimitMiddleware(req)
+  if (rateLimitResult) return rateLimitResult
+  
   const session = await getServerSession(authOptions)
 
   if (!session || (session.user.role !== 'streamer' && session.user.role !== 'mod')) {
