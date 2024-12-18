@@ -63,7 +63,7 @@ export default function AdminDashboard() {
     }
   }
 
-  const assignModRole = async (userId, streamerId) => {
+  const assignModRole = async (userId: string, streamerId: string) => {
     try {
       const response = await fetch('/api/admin/assign-mod', {
         method: 'POST',
